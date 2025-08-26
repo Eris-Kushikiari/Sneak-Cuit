@@ -21,6 +21,8 @@ public class Player_Controller : MonoBehaviour
 
     private readonly int _animMoveRight = Animator.StringToHash("Player_Run_Animation");
     private readonly int _animIdleRight = Animator.StringToHash("Player_Idle_Animation");
+
+    public CollectebleManager cm;
     
     // Update is called once per frame
     void Update()
@@ -79,6 +81,15 @@ public class Player_Controller : MonoBehaviour
         else
         {
             _animator.CrossFade(_animIdleRight, 0);
+        }
+    }
+
+    public void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Biscuit"))
+        {
+            Destroy(other.gameObject);
+            cm.biscuitCount++;
         }
     }
 }
