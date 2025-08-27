@@ -11,6 +11,7 @@ public class Enemy_Controller : MonoBehaviour
     private GuardState currentState = GuardState.Patrolling;
 
     private Transform player;
+    public GameObject playerObject;
     [SerializeField] SpriteRenderer _spriteRenderer;
     private int currentIndex = 0;
 
@@ -24,7 +25,7 @@ public class Enemy_Controller : MonoBehaviour
     public float loseSightTime = 2f;
 
     [Header("Catch Settings")]
-    public float catchDistance = 0.5f;
+    public float catchDistance = 1f;
 
     [Header("Speeds")]
     public float patrolSpeed = 2f;
@@ -143,7 +144,7 @@ public class Enemy_Controller : MonoBehaviour
     private void PlayerCaught()
     {
         gameOverUI.SetActive(true);
-        Time.timeScale = 0f;
+        Destroy(playerObject);
     }
 
     private void OnDrawGizmosSelected()
