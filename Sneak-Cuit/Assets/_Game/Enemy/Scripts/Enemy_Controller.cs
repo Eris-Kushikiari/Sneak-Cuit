@@ -1,4 +1,5 @@
 
+using TreeEditor;
 using UnityEngine;
 
 public class Enemy_Controller : MonoBehaviour
@@ -10,9 +11,12 @@ public class Enemy_Controller : MonoBehaviour
     }
     private GuardState currentState = GuardState.Patrolling;
 
+    [Header("Dependencies")]
     private Transform player;
     public GameObject playerObject;
     [SerializeField] SpriteRenderer _spriteRenderer;
+    [SerializeField] LayerMask obstacleMask;
+    [SerializeField] Rigidbody2D enemyRb;
     private int currentIndex = 0;
 
     [Header("Patrol Settings")]
@@ -44,7 +48,7 @@ public class Enemy_Controller : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").transform;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         switch (currentState)
         {
@@ -84,22 +88,25 @@ public class Enemy_Controller : MonoBehaviour
     {
         Transform target = wayPoints[currentIndex];
 
-        //Move towards the waypoint
-        transform.position = Vector2.MoveTowards(transform.position, target.position, patrolSpeed * Time.deltaTime);
-
-        //Flip sprite based on direction
+        //Calculate direction
         Vector2 direction = (target.position - transform.position).normalized;
+
+        //Move using RigidBody2D
+        Vector2 newPosition = Vector2.MoveTowards(enemyRb.position, target.position, patrolSpeed * Time.fixedDeltaTime);
+        enemyRb.MovePosition(newPosition);
+
+        //Flip sprite based on position
         if (direction.x > 0)
         {
-            _spriteRenderer.flipX = false; //facing right
+            _spriteRenderer.flipX = false; //Facing right
         }
         else if (direction.x < 0)
         {
-            _spriteRenderer.flipX = true; //facing left
+            _spriteRenderer.flipX = true; //Facing left
         }
 
         //Check if reached waypoint
-        if (Vector2.Distance(transform.position, target.position) < 1.0f)
+        if (Vector2.Distance(enemyRb.position, target.position) < 0.1f)
         {
             currentIndex++;
             if (currentIndex >= wayPoints.Length)
@@ -124,6 +131,17 @@ public class Enemy_Controller : MonoBehaviour
 
         float angle = Vector2.Angle(facingDirection, directionToPlayer);
         if (angle > visionAngle) return false;
+
+        //Check for obstacles using Linecast
+        RaycastHit2D hit = Physics2D.Linecast(transform.position, player.position, obstacleMask);
+        if (hit.collider != null)
+        {
+            //If we hit something before the player, vision is blocked
+            if (!hit.collider.CompareTag("Player"))
+            {
+                return false;
+            }
+        }
 
         return true;
     }
