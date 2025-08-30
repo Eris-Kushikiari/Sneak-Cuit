@@ -17,6 +17,7 @@ public class Enemy_Controller : MonoBehaviour
     [SerializeField] SpriteRenderer _spriteRenderer;
     [SerializeField] LayerMask obstacleMask;
     [SerializeField] Rigidbody2D enemyRb;
+    [SerializeField] BoxCollider2D enemyCollider;
     private int currentIndex = 0;
 
     [Header("Patrol Settings")]
@@ -53,6 +54,7 @@ public class Enemy_Controller : MonoBehaviour
         switch (currentState)
         {
             case GuardState.Patrolling:
+                enemyCollider.enabled = false;
                 Patrol();
                 alertIcon.SetActive(false);
                 if (CanSeePlayer())
@@ -64,6 +66,7 @@ public class Enemy_Controller : MonoBehaviour
                 break;
 
             case GuardState.Chasing:
+                enemyCollider.enabled = true;
                 Chase();
                 if (CanSeePlayer())
                 {
